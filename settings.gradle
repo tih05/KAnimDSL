@@ -1,0 +1,2 @@
+include ':kotanimdsl'
+rootProject.name = "KotAnimDSL"
