@@ -1,14 +1,17 @@
 package com.tikhomirov.kotanimdsl
 
 import android.animation.Animator
+import android.animation.ObjectAnimator
 import android.view.View
 
 abstract class  Animation<T:Number> {
     //Properties
-    open lateinit var target: View
-    open lateinit var values: List<T>
-    open var duration: Long = 0L
-    open var startDelay: Long = 0L
+    lateinit var target: View
+    lateinit var values: List<T>
+    var duration: Long = 0L
+    var startDelay: Long = 0L
+    var repeatCount = 0
+    var repeatMode: Int = 1
 
     //Callbacks
     open var onStart:  (() -> Unit)? = null

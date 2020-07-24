@@ -2,6 +2,8 @@ package com.tikhomirov.kotanimdsl
 
 import android.animation.Animator
 import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.view.View
 
 class AnimationBuilder(
@@ -9,6 +11,15 @@ class AnimationBuilder(
     private var mode: BuildMode = BuildMode.TOGETHER
 ) {
     private val animatorList = mutableListOf<Animator>()
+    var startDelay: Long = 0L
+    var repeatCount = 0
+    var repeatMode: Int = 1
+
+    //Callbacks
+    open var onStart: (() -> Unit)? = null
+    open var onEnd: (() -> Unit)? = null
+    open var onCancel: (() -> Unit)? = null
+    open var onRepeat: (() -> Unit)? = null
 
 
     fun <N : Number, T : Animation<N>> addAnimation(animation: T, lambda: T.() -> Unit) {
@@ -44,26 +55,52 @@ class AnimationBuilder(
         var maxDuration: Long = 0L
         var sumDuration: Long = 0L
         animatorList.map {
-            if(it.duration>maxDuration)
+            if (it.duration > maxDuration)
                 maxDuration = it.duration
             sumDuration += it.duration
         }
 
+        animatorList.map {
+            if (it is ObjectAnimator) {
+                it.repeatMode = this.repeatMode
+                it.repeatCount = this.repeatCount
+            }
+        }
+        set.startDelay = this.startDelay
+        set.setCallbacks()
+
         return when (mode) {
             BuildMode.TOGETHER ->
-                AnimatorSet().apply {
+                set.apply {
                     playTogether(animatorList)
                     duration = maxDuration
                 }
             BuildMode.SEQUENTIALLY ->
-                AnimatorSet().apply {
+                set.apply {
                     playSequentially(animatorList)
                     duration = sumDuration
                 }
         }
-
-
     }
+
+    private fun AnimatorSet.setCallbacks() {
+        val hasCallbacks =
+            onStart != null ||
+                    onEnd != null ||
+                    onCancel != null ||
+                    onRepeat != null
+
+        if (hasCallbacks) {
+            val animationListener = AnimationCallbackListener(
+                onStart = onStart,
+                onEnd = onEnd,
+                onCancel = onCancel,
+                onRepeat = onRepeat
+            )
+            this.addListener(animationListener)
+        }
+    }
+
 
     enum class BuildMode {
         TOGETHER,
@@ -86,3 +123,47 @@ fun View.animateSequentially(lambda: AnimationBuilder.() -> Unit): Animator {
         .apply(lambda)
         .build()
 }
+
+//fun AnimatorSet.invert(animator: AnimatorSet = this, mode: Int = animator.): AnimatorSet {
+//    when (animator) {
+//
+//        is AnimatorSet -> {
+//            val childs = animator.childAnimations
+//            val animationList = mutableListOf<Animator>()
+//
+//            when (mode) {
+//                AnimationBuilder.BuildMode.TOGETHER -> {
+//                    for (animation in childs) {
+//                        when (animation) {
+//                            is ValueAnimator -> {
+//                                val reversedArray = animation.values.reversedArray()
+//                                animation.setValues(*reversedArray)
+//                            }
+//                            is AnimatorSet -> {
+//                                animation.invert()
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                AnimationBuilder.BuildMode.SEQUENTIALLY -> {
+//                    val reversedList = animator.childAnimations.reversed()
+//                    animator.playSequentially(*reversedList.toTypedArray())
+//                    for (animation in reversedList) {
+//                        when (animation) {
+//                            is ValueAnimator -> {
+//                                val reversedArray = animation.values.reversedArray()
+//                                animation.setValues(*reversedArray)
+//                            }
+//                            is AnimatorSet -> {
+//                                animation.invert()
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//
+//        }
+//    }
+//    return animator
+//}
