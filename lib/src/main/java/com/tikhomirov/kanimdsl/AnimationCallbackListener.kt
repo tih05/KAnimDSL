@@ -1,4 +1,4 @@
-package com.tikhomirov.kotanimdsl
+package com.tikhomirov.kanimdsl
 
 import android.animation.Animator
 

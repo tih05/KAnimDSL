@@ -1,11 +1,13 @@
-package com.tikhomirov.kotanimdsl.DefaultAnimations
+package com.tikhomirov.kanimdsl.defaultAnimations
 
 import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.view.View
-import com.tikhomirov.kotanimdsl.Animation
-import com.tikhomirov.kotanimdsl.AnimationBuilder
+import com.tikhomirov.kanimdsl.Animation
+import com.tikhomirov.kanimdsl.AnimationBuilder
+import com.tikhomirov.kanimdsl.processor.annotations.KAnimation
 
+@KAnimation("color")
 class ColorAnimation: Animation<Int>() {
     lateinit var property: String
     override fun createAnimation(): Animator {
@@ -18,9 +20,3 @@ class ColorAnimation: Animation<Int>() {
             }
     }
 }
-
-fun AnimationBuilder.color(lambda: ColorAnimation.()->Unit) = addAnimation(ColorAnimation(), lambda)
-
-fun View.animateColor(lambda: ColorAnimation.()->Unit)  = ColorAnimation().launchOnView(this, lambda)
-
-fun View.color(lambda: ColorAnimation.()->Unit): Animator  = ColorAnimation().createOnView(this, lambda)
