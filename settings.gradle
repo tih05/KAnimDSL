@@ -1,2 +1,4 @@
-include ':kotanimdsl'
-rootProject.name = "KotAnimDSL"
+include ':annotations'
+include ':lib'
+include ':processor'
+rootProject.name = "kanimdsl"

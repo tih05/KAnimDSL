@@ -1,4 +1,4 @@
-package com.tikhomirov.kotanimdsl
+package com.tikhomirov.kanimdsl
 
 import android.animation.Animator
 import android.animation.AnimatorSet
@@ -16,10 +16,10 @@ class AnimationBuilder(
     var repeatMode: Int = 1
 
     //Callbacks
-    open var onStart: (() -> Unit)? = null
-    open var onEnd: (() -> Unit)? = null
-    open var onCancel: (() -> Unit)? = null
-    open var onRepeat: (() -> Unit)? = null
+    var onStart: (() -> Unit)? = null
+    var onEnd: (() -> Unit)? = null
+    var onCancel: (() -> Unit)? = null
+    var onRepeat: (() -> Unit)? = null
 
 
     fun <N : Number, T : Animation<N>> addAnimation(animation: T, lambda: T.() -> Unit) {
@@ -52,8 +52,8 @@ class AnimationBuilder(
 
     fun build(): Animator {
         val set = AnimatorSet()
-        var maxDuration: Long = 0L
-        var sumDuration: Long = 0L
+        var maxDuration = 0L
+        var sumDuration = 0L
         animatorList.map {
             if (it.duration > maxDuration)
                 maxDuration = it.duration
